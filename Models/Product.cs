@@ -13,7 +13,7 @@ public class Product
     [Required]
     public string Description { get; set; }
     [Required]
-    public string Price { get; set; }
+    public decimal Price { get; set; }
     [Required]    
     public string ImageName { get; set; }
     public Size Size { get; set;}

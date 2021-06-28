@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using StoreApp.Data;
 using StoreApp.Enums;
+using StoreApp.Models;
 using StoreApp.ViewModels;
 
 namespace StoreApp.Controllers
@@ -65,7 +66,7 @@ namespace StoreApp.Controllers
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Title");
             ViewData["Size"] = new SelectList(Enum.GetValues(typeof(Size)).Cast<Size>().Select(v => new SelectListItem
             {
-                Text = v.ToString().Replace("_", ""),
+                Text = v.ToString().Replace("_",""),
                 Value = ((int)v).ToString()
             }).ToList(),"Value","Text");
             ViewData["Color"] = new SelectList(Enum.GetValues(typeof(Color)).Cast<Color>().Select(v => new SelectListItem
@@ -100,7 +101,7 @@ namespace StoreApp.Controllers
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Title", productViewModel.CategoryId);
             ViewData["Size"] = new SelectList(Enum.GetValues(typeof(Size)).Cast<Size>().Select(v => new SelectListItem
             {
-                Text = v.ToString().Replace("_", ""),
+                Text = v.ToString().Replace("_",""),
                 Value = ((int)v).ToString()
             }).ToList(),"Value","Text", productViewModel.Size);
             ViewData["Color"] = new SelectList(Enum.GetValues(typeof(Color)).Cast<Color>().Select(v => new SelectListItem
@@ -126,7 +127,7 @@ namespace StoreApp.Controllers
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Title", product.CategoryId);
             ViewData["Size"] = new SelectList(Enum.GetValues(typeof(Size)).Cast<Size>().Select(v => new SelectListItem
             {
-                Text = v.ToString().Replace("_", ""),
+                Text = v.ToString().Replace("_",""),
                 Value = ((int)v).ToString()
             }).ToList(),"Value","Text", product.Size);
             ViewData["Color"] = new SelectList(Enum.GetValues(typeof(Color)).Cast<Color>().Select(v => new SelectListItem
@@ -186,7 +187,7 @@ namespace StoreApp.Controllers
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Title", productViewModel.CategoryId);
             ViewData["Size"] = new SelectList(Enum.GetValues(typeof(Size)).Cast<Size>().Select(v => new SelectListItem
             {
-                Text = v.ToString().Replace("_", ""),
+                Text = v.ToString().Replace("_",""),
                 Value = ((int)v).ToString()
             }).ToList(),"Value","Text", productViewModel.Size);
             ViewData["Color"] = new SelectList(Enum.GetValues(typeof(Color)).Cast<Color>().Select(v => new SelectListItem
@@ -224,7 +225,6 @@ namespace StoreApp.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
         private bool ProductExists(int id)
         {
             return _context.Products.Any(e => e.Id == id);

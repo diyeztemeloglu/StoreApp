@@ -1,8 +1,13 @@
-﻿@model IEnumerable<Product>
+﻿@using System.Security.Claims
+@using Microsoft.AspNetCore.Identity
+@model IEnumerable<Product>
+
+@inject SignInManager<IdentityUser> SignInManager
 
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var counter = 0;
 }
 
 <h1>Index</h1>
@@ -10,64 +15,47 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImageName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Size)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Color)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Category)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ImageName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Size)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Color)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Category.Id)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+
+<div class="container">
+    
+    <div class="row">
+       @foreach (var item in Model)
+        {
+            string description = new string(item.Description.Take(20).ToArray());   
                 
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+            if (counter != 0 && counter % 3 == 0)
+            {
+                @:</div>
+                @:<div class="row">
+            }
+            <div class="col-md-4">
+                <div class="card" style="width: 18rem;">
+                    <a href="Products/Details/@item.Id" >
+                    <img src="/images/@item.ImageName" class="card-img-top" alt="...">
+                        </a>
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Title</h5>
+                        <p class="card-text">@description ...</p>
+                         <h5 class="card-title">@item.Price TL</h5>
+                     
+                            @if (SignInManager.IsSignedIn(User))
+                            {
+                                <button class="btn btn-primary addToCart" data-productid="@item.Id" data-userid="@User.FindFirst(ClaimTypes.NameIdentifier)?.Value" >Add To Cart</button>
+                            }
+                            else
+                            {
+                                <a class="btn btn-secondary" asp-area="Identity" asp-page="/Account/Login">Login To Add Cart</a>
+                            }
+                            
+                    </div>
+                </div>
+            </div>
+            
+            counter++;
+
+        }
+       
+        </div>
+
+
+</div>

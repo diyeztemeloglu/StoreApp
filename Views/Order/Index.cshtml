@@ -1,0 +1,33 @@
+﻿@model List<StoreApp.ViewModels.OrderViewModel>;
+
+@{
+    ViewBag.Title = "Orders";
+    Layout = "_Layout";
+}
+
+@if(Model.Any()){
+<table class="table">
+  <thead>
+  <tr>
+    <th scope="col">OrderId</th>
+    <th scope="col">OrderTotal</th>
+    <th scope="col">ProductCount</th>
+  </tr>
+  </thead>
+  <tbody>
+  @foreach (var order in Model)
+  {
+    <tr>
+      <th scope="row">@order.Id</th>
+      <td>@order.OrderTotal</td>
+      <td>@order.OrderItems?.Count</td>
+    </tr>
+  }
+
+  </tbody>
+</table>
+}
+else
+{
+  <h3>You have no recorded Order</h3>
+}
