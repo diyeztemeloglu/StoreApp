@@ -24,9 +24,6 @@ $("#fileUpload").on('change', function () {
                 $("#fileUploadValue").val(data.uniqueFileName)
                 alert("File : " + repo.filename + " is uploaded successfully");
             }
-        },
-        error: function() {
-            alert("Error occurs");
         }
     });
 });
@@ -51,9 +48,6 @@ $('.addToCart').each(function () {
                 GetCartCount()
                 alert("Product successfully added to Cart");
                
-            },
-            error: function() {
-                alert("Error occurs");
             }
         });
     });
@@ -77,9 +71,6 @@ function GetCartCount(){
         success: function (data) {           
             $("#shoppingCounter").text("Shopping Cart ( " + data.count + " )");
 
-        },
-        error: function() {
-            alert("Error occurs");
         }
     });
 }

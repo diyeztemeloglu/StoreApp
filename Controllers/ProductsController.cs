@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ using StoreApp.ViewModels;
 
 namespace StoreApp.Controllers
 {
+    [Authorize]
     public class ProductsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -26,13 +28,125 @@ namespace StoreApp.Controllers
             _context = context;
             _webHostEnvironment = webHostEnvironment;
         }
-
-        public async Task<IActionResult> Index()
+        
+        [AllowAnonymous]
+        public async Task<IActionResult> Index(ProductFilters searchQuery)
         {
-            var applicationDbContext = _context.Products.Include(p => p.Category);
-            return View(await applicationDbContext.ToListAsync());
-        }
+            var viewModel = new List<ProductViewModel>();
+            var products = await _context.Products.Include(p => p.Category).ToListAsync();
+            foreach (var product in products)
+            {
+                if (searchQuery.PriceLower > 0 && product.Price < searchQuery.PriceLower)
+                {
+                    continue;
+                }
 
+                if (searchQuery.PriceUpper > 0 && product.Price > searchQuery.PriceUpper)
+                {
+                    continue;
+                }
+
+                if (searchQuery.Size > 0 && searchQuery.Size != (int)product.Size)
+                {
+                    continue;
+                }
+                
+                if (searchQuery.Color > 0 && searchQuery.Color != (int)product.Color)
+                {
+                    continue;
+                }
+
+                if (searchQuery.CategoryId > 0)
+                {
+                    if (product.CategoryId != searchQuery.CategoryId)
+                    {
+                        continue;
+                    }
+                }
+                
+
+                if (!string.IsNullOrWhiteSpace(searchQuery.SearchText))
+                {
+                    string[] words = searchQuery.SearchText.Split(' ');
+
+                    var pass = false;
+                    foreach (var word in words)
+                    {
+                        if (product.Title.Contains(word))
+                        {
+                            pass = true;
+                        }
+
+                        if (product.Description.Contains(word))
+                        {
+                            pass = true;
+                        }
+                    }
+
+                    if (!pass)
+                    {
+                        continue;
+                    }
+                }
+
+
+                viewModel.Add(new ProductViewModel
+                    {
+                        Id = product.Id,
+                        Title = product.Title,
+                        Description = product.Description,
+                        Price = product.Price,
+                        Size = product.Size,
+                        Color = product.Color,
+                        Category = product.Category,
+                        CategoryId = product.CategoryId,
+                        ImageName = product.ImageName,
+                    }
+                );
+
+            }
+
+            var defaultCategory = new Category
+            {
+                Id = 0,
+                Title = "All"
+            };
+            var categories = await _context.Categories.ToListAsync();
+            categories.Insert(0, defaultCategory);
+            ViewData["CategoryId"] = new SelectList(categories, "Id", "Title");
+            
+            var sizes = Enum.GetValues(typeof(Size)).Cast<Size>().Select(v => new SelectListItem
+            {
+                Text = v.ToString().Replace("_", ""),
+                Value = ((int) v).ToString()
+            }).ToList();
+            var defaultFilterValue = new SelectListItem
+            {
+                Text = "0",
+                Value = "All"
+            };
+            sizes.Insert(0, defaultFilterValue);
+            ViewData["Size"] = new SelectList(sizes,"Value","Text");
+
+            var colors = Enum.GetValues(typeof(Color)).Cast<Color>().Select(v => new SelectListItem
+            {
+                Text = v.ToString(),
+                Value = ((int) v).ToString()
+            }).ToList();
+            colors.Insert(0, defaultFilterValue);
+            ViewData["Color"] = new SelectList(colors,"Value","Text");
+            return View( new ProductListViewModel()
+            {
+                ProductList = viewModel,
+                SearchText = searchQuery.SearchText,
+                PriceUpper = searchQuery.PriceUpper,
+                PriceLower = searchQuery.PriceLower,
+                Color = searchQuery.Color,
+                Size = searchQuery.Size,
+                
+            });
+        }
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -50,6 +164,7 @@ namespace StoreApp.Controllers
             
             return View(new ProductViewModel()
             {
+                Id = product.Id,
                 Title = product.Title,
                 Description = product.Description,
                 Price = product.Price,
@@ -112,13 +227,9 @@ namespace StoreApp.Controllers
             return View(productViewModel);
         }
         
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            
             var product = await _context.Products.FindAsync(id);
             if (product == null)
             {
@@ -137,6 +248,7 @@ namespace StoreApp.Controllers
             }).ToList(),"Value","Text", product.Color);
             return View(new ProductViewModel()
             {
+                Id = product.Id,
                 Title = product.Title,
                 Description = product.Description,
                 Price = product.Price,

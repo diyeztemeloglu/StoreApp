@@ -1,22 +1,24 @@
 ﻿@model StoreApp.ViewModels.ProductViewModel
 @using Microsoft.AspNetCore.Identity
+@using System.Security.Claims
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 
    
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = Model.Title;
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Details</h1>
+<h1>@Model.Title</h1>
 @if (SignInManager.IsSignedIn(User))
 {
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> 
+    <a class="btn btn-primary float-right" asp-action="Edit" asp-route-id="@Model.Id">Edit</a> 
 }
 <div>
-    <h4>Product</h4>
-    <hr />
+    <div class="container">
+        <img class="img-thumbnail" src="/images/@Model.ImageName" alt=""/>
+    </div>
     <dl class="row">
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Title)
@@ -61,6 +63,14 @@
             @Html.DisplayFor(model => model.Category.Id)
         </dd>
     </dl>
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <button class="btn btn-primary addToCart" data-productid="@Model.Id" data-userid="@User.FindFirst(ClaimTypes.NameIdentifier)?.Value" >Add To Cart</button>
+    }
+    else
+    {
+        <a class="btn btn-secondary" asp-area="Identity" asp-page="/Account/Login">Login To Add Cart</a>
+    }
 </div>
 <div>
     <a asp-action="Index">Back to List</a>
