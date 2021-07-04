@@ -122,8 +122,8 @@ namespace StoreApp.Controllers
             }).ToList();
             var defaultFilterValue = new SelectListItem
             {
-                Text = "0",
-                Value = "All"
+                Text = "All",
+                Value = "0"
             };
             sizes.Insert(0, defaultFilterValue);
             ViewData["Size"] = new SelectList(sizes,"Value","Text");
